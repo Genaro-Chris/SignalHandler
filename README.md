@@ -35,5 +35,5 @@ let package = Package(
 For a better documentation of this swift package. Visit [here](https://genaro-chris.github.io/SignalHandler/documentation/signalhandler) 
 
 ## License 
-SignalHandler is released under Apache-2.0 license. See [License]() for more information.
+SignalHandler is released under Apache-2.0 license. See [License](https://github.com/Genaro-Chris/SignalHandler/blob/main/license.txt) for more information.
 
