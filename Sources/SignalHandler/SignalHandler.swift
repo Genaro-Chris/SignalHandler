@@ -1,5 +1,4 @@
 import Foundation
-import AsyncAlgorithms
 
 /**
 Handler for most handleable *nix signals
@@ -19,10 +18,22 @@ Example of its usage
     }
     async let _ = exitHandler.start()
 ```
+Or 
+```swift
+    Task {
+        let exithandler = SignalHandler(signals: .SIGINT, .SIQUIT) { _ in
+            print("Closing this program")
+            // Code to clean up resources used
+        }
+        await exithandler.start()
+    }
+```
 */
 public actor SignalHandler {
 
-   static internal let channel = AsyncChannel<Signals>()
+    @SourceSequence<Signals>
+    static internal var source : Signals
+
     /// A simple singleton for the ``SignalHandler`` type 
     ///
     /// Provides a default handler for most common signals such as: 
@@ -31,10 +42,12 @@ public actor SignalHandler {
     ///     `Ctrl+\ or ^\`,
     /// and if any of the above is being caught, prints `Quitting...` then exits with exit code 1 
     public static let `default` = SignalHandler(signals: .SIGINT, .SIGQUIT, .SIGTSTP) { _ in print("\nQuitting... \r\r"); exit(1) }
+
     /// Signals registered to be handled
     /// 
     /// Stores all the signals that this instance should handle as an array of ``Signals`` 
     public let signals : [Signals]
+
     /// Instantiates this type
     /// 
     /// Given the correct arguments, initializes this type whose instance is ready to catch all registered signals and executes the completion handler whenever any one of the signals are caught
@@ -46,6 +59,7 @@ public actor SignalHandler {
         self.signals = signals
         self.handler = handler
     }
+
     /// Instantiates this type
     /// 
     /// Given the correct arguments, initializes this type whose instnce is ready to catch all registered signals and executes the completion handler whenever any one of the signals are caught
@@ -57,6 +71,7 @@ public actor SignalHandler {
         self.signals = signals
         self.handler = handler
     }
+
     /// Callback to run if any registered signal is caught
     /// 
     /// This callback can't be any function associated with a type such as instance or type methods, just a plain old closure 
@@ -70,34 +85,35 @@ public actor SignalHandler {
     /// ```
     public let handler: (@convention(c) (Int32) -> ())
 
-    
-    nonisolated private func notify() async {
+    nonisolated
+    private func notify() async {
         for _ in 0 ... ProcessInfo.processInfo.activeProcessorCount {
-            Task { await withTaskGroup(of: Void.self) {
+            async let _ = withTaskGroup(of: Void.self) { [self] in 
                 for i in self.signals {
                     $0.addTask {
-                        signal(i.rawValue, notifer(value:))
+                        let _ = signal(i.rawValue, notifer(value:))
                     }
                 }
-            }   
-        }      
+            }        
         } 
 
         for signals in self.signals {
             Task.detached(priority: .userInitiated) {
-                let _ = signal(signals.rawValue, notifer(value:))
+                let _ = signal(signals.rawValue, notifer(value:)) 
             }
         }
     }
+
     /// Starts handling ``signals`` registered asynchronously as they being caught 
     /// 
     /// This instance method must called if this type was instantiated otherwise ``start(with:completion:)`` or ``start(with:handler:)`` method can be called instead
     public func start() async {
-        Task { await self.notify() }
-        for await sign in Self.channel {
+        Task(priority: .high) { await self.notify() }
+        for await sign in Self.$source {
             handler(sign.rawValue)
         }
     }  
+
     /// Start handling signals
     ///  
     /// - Parameters: 
@@ -112,6 +128,15 @@ public actor SignalHandler {
     ///     async let signalHandler = SignalHandler.start(with: [.SIGINT, .SIGQUIT]) { _ in
     ///         // Code to clean up resources held
     ///         print("Closing socket")        
+    ///     }
+    /// ```
+    /// Or 
+    /// ```swift
+    ///     Task {
+    ///         await SignalHandler.start(with: [.SIGINT, .SIGQUIT]) { _ in
+    ///             // Code to clean up resources held
+    ///             print("Closing socket")        
+    ///         }
     ///     }
     /// ```
     public static nonisolated func start(with signals: [Signals], completion: (@convention(c) (Int32) -> ())) async {
@@ -133,6 +158,15 @@ public actor SignalHandler {
     ///     async let signalHandler = SignalHandler.start(with: .SIGINT, .SIGQUIT, .SIGTSTP) { _ in
     ///         // Code to clean up resources held
     ///         print("Quitting")
+    ///     }
+    /// ```
+    /// Or 
+    /// ```swift
+    ///     Task {
+    ///         await SignalHandler.start(with: .SIGINT, .SIGQUIT) { _ in
+    ///             // Code to clean up resources held
+    ///             print("Closing socket")        
+    ///         }
     ///     }
     /// ```
     public static nonisolated func start(with signals: Signals..., handler: (@convention(c) (Int32) -> ())) async {
