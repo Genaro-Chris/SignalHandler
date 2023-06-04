@@ -54,8 +54,8 @@ public actor SignalHandler {
     /// 
     /// - Parameters:
     ///   - signals: varidaic number of signals to register
-    ///   - handler: a C convention completion handler to be called if any signal is being caught
-    public init(signals: Signals..., handler: (@convention(c) (Int32) -> ())) {
+    ///   - handler: a completion handler to be called if any signal is being caught
+    public init(signals: Signals..., handler: @escaping ((Int32) -> ())) {
         self.signals = signals
         self.handler = handler
     }
@@ -66,8 +66,8 @@ public actor SignalHandler {
     ///
     /// - Parameters:
     ///   - signals: array of signals to register
-    ///   - handler: a C convention completion handler to be called if any signal is being caught    
-    public init(signals: [Signals], handler: (@convention(c) (Int32) -> ())) {
+    ///   - handler: a completion handler to be called if any signal is being caught    
+    public init(signals: [Signals], handler: @escaping ((Int32) -> ())) {
         self.signals = signals
         self.handler = handler
     }
@@ -83,7 +83,7 @@ public actor SignalHandler {
     ///         print("This is a callback handler")
     ///     }
     /// ```
-    public let handler: (@convention(c) (Int32) -> ())
+    public let handler: ((Int32) -> ())
 
     nonisolated
     private func notify() async {
@@ -139,7 +139,7 @@ public actor SignalHandler {
     ///         }
     ///     }
     /// ```
-    public static nonisolated func start(with signals: [Signals], completion: (@convention(c) (Int32) -> ())) async {
+    public static nonisolated func start(with signals: [Signals], completion: @escaping ((Int32) -> ())) async {
         let signal = SignalHandler(signals: signals, handler: completion)
         await signal.start()
     }
@@ -169,7 +169,7 @@ public actor SignalHandler {
     ///         }
     ///     }
     /// ```
-    public static nonisolated func start(with signals: Signals..., handler: (@convention(c) (Int32) -> ())) async {
+    public static nonisolated func start(with signals: Signals..., handler: @escaping ((Int32) -> ())) async {
         let signal = SignalHandler(signals: signals, handler: handler)
         await signal.start()
     }
