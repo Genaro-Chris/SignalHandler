@@ -1,0 +1,14 @@
+name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
+runs-on: ${{ matrix.os }}
+strategy:
+  matrix:
+    os: [ubuntu-latest, macos-latest]
+    swift: ["5.6.0", "5.5.0"]
+steps:
+- uses: SwiftyLab/setup-swift@latest
+  with:
+    development: true
+    stable: true
+    swift-version: ${{ matrix.swift }}
+- name: Build package
+  run: swift build
