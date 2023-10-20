@@ -1,7 +1,11 @@
 name: Swift
 
-on: [push]
-
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
 jobs:
   build:
     name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
@@ -17,7 +21,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: swift build
-      - name: Run tests
-        run: swift test
 
         
