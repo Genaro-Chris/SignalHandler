@@ -55,7 +55,7 @@ public actor SignalHandler {
     /// - Parameters:
     ///   - signals: varidaic number of signals to register
     ///   - handler: a completion handler to be called if any signal is being caught
-    public init(signals: Signals..., handler: @escaping ((Int32) -> ())) {
+    public init(signals: Signals..., handler: @escaping ((Int32) async -> ())) {
         self.signals = signals
         self.handler = handler
     }
@@ -67,7 +67,7 @@ public actor SignalHandler {
     /// - Parameters:
     ///   - signals: array of signals to register
     ///   - handler: a completion handler to be called if any signal is being caught    
-    public init(signals: [Signals], handler: @escaping ((Int32) -> ())) {
+    public init(signals: [Signals], handler: @escaping ((Int32) async -> ())) {
         self.signals = signals
         self.handler = handler
     }
@@ -83,7 +83,7 @@ public actor SignalHandler {
     ///         print("This is a callback handler")
     ///     }
     /// ```
-    public let handler: ((Int32) -> ())
+    public let handler: ((Int32) async -> ())
 
     nonisolated
     private func notify() async {
@@ -110,7 +110,7 @@ public actor SignalHandler {
     public func start() async {
         Task(priority: .high) { await self.notify() }
         for await sign in Self.$source {
-            handler(sign.rawValue)
+            await handler(sign.rawValue)
         }
     }  
 
@@ -169,7 +169,7 @@ public actor SignalHandler {
     ///         }
     ///     }
     /// ```
-    public static nonisolated func start(with signals: Signals..., handler: @escaping ((Int32) -> ())) async {
+    public static nonisolated func start(with signals: Signals..., handler: @escaping ((Int32) async -> ())) async {
         let signal = SignalHandler(signals: signals, handler: handler)
         await signal.start()
     }

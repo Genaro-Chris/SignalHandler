@@ -11,11 +11,7 @@ struct SourceSequence<Element> {
     private let continuation: AsyncStream<Element>.Continuation
 
     init() {
-        var cont: AsyncStream<Element>.Continuation!
-        projectedValue = AsyncStream { continuation in 
-            cont = continuation
-        }
-        continuation = cont
+        (projectedValue, continuation) = AsyncStream.makeStream()
     }
 
     fileprivate func appendToStream(newValue: Element) {
