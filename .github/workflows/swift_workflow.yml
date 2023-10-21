@@ -14,10 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
-            swift: "5.9"
+          - os: macos-latest
+            swift: ["5.5", "5.7", "5.9"]
           - os: ubuntu-latest
-            swift: "5.9"
+            swift: ["5.5", "5.7", "5.9"]
+          - os: windows
+            swift: ["5.5", "5.7", "5.9"]
 
     steps:
       - uses: swift-actions/setup-swift@v1
