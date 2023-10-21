@@ -1,19 +1,36 @@
-name: Swift
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: "*"
   pull_request:
-    branches: [ "main" ]
+    branches: "*"
 
 jobs:
   build:
-    name: Swift Build on ${{ matrix.os }}
+    name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: macos-13
+            swift: "5.9"
+          - os: ubuntu-latest
+            swift: "5.9"
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: swift build
+      - uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: ${{ matrix.swift }}
+      - run: swift --version
+      - uses: actions/checkout@v3
+
+      - name: test
+        run: swift test
+
+      - name: build for release
+        run: swift build -c release
+
+      - name: run example
+        run: swift run
