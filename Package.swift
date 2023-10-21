@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SignalHandler",
     platforms: [
+      .custom("Linux", versionString: "1.0.0"),
       .macOS(.v10_15)  
     ],
     products: [
