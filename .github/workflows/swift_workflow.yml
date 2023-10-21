@@ -15,9 +15,9 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            swift: "5.7"
+            swift: "5.8"
           - os: ubuntu-latest
-            swift: "5.7"
+            swift: "5.8"
           - os: macos-latest
             swift: "5.9"
           - os: ubuntu-latest
@@ -27,8 +27,6 @@ jobs:
       - uses: swift-actions/setup-swift@v1
         with:
           swift-version: ${{ matrix.swift }}
-      - run: swift --version
-      - uses: actions/checkout@v3
 
       - name: build
         run: swift build

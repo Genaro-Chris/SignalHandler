@@ -72,7 +72,7 @@ public enum Signals: Int32, CaseIterable, Sendable, Equatable {
 
 extension Signals: CustomStringConvertible {
     public var description: String {
-        switch self {
+        return switch self {
 
             case .SIGHUP: "Hang-up (POSIX)"
 
