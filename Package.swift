@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.6
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,6 @@ import PackageDescription
 let package = Package(
     name: "SignalHandler",
     platforms: [
-      .custom("Linux", versionString: "1.0.0"),
       .macOS(.v10_15)  
     ],
     products: [
