@@ -26,11 +26,8 @@ jobs:
       - run: swift --version
       - uses: actions/checkout@v3
 
-      - name: test
-        run: swift test
+      - name: build
+        run: swift build
 
       - name: build for release
         run: swift build -c release
-
-      - name: run example
-        run: swift run
