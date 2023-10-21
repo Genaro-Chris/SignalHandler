@@ -18,7 +18,7 @@ jobs:
             swift: ["5.5", "5.7", "5.9"]
           - os: ubuntu-latest
             swift: ["5.5", "5.7", "5.9"]
-          - os: windows
+          - os: windows-latest
             swift: ["5.5", "5.7", "5.9"]
 
     steps:
