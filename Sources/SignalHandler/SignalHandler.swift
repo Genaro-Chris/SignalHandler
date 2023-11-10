@@ -153,7 +153,7 @@ public actor SignalHandler {
     ///     }
     /// ```
     public static nonisolated func start(
-        with signals: [Signals], completion: @escaping ((Int32) -> Void)
+        with signals: [Signals], completion: @escaping ((Int32) async -> Void)
     ) async {
         let signal = SignalHandler(signals: signals, handler: completion)
         await signal.start()
