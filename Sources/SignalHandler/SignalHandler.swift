@@ -112,17 +112,9 @@ public actor SignalHandler {
     ///
     /// This instance method must called if this type was instantiated otherwise ``start(with:completion:)`` or ``start(with:handler:)`` method can be called instead
     public func start() async {
-        Task(priority: .high) { await self.notify() }
-        await withDiscardingTaskGroup { group in
-            for await sign in Self.$source {
-                group.addTask { [weak self] in
-                    guard let self else {
-                        return
-                    }
-                    await handler(sign.rawValue)
-                }
-
-            }
+        Task.detached(priority: .high) { await self.notify() }
+        for await sign in Self.$source {
+            await handler(sign.rawValue)
         }
 
     }
